@@ -13,5 +13,3 @@ for string in a:
     exec("d="+t)
 
     print(d["code"])
-    
-    
