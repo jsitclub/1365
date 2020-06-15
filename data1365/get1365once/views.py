@@ -25,67 +25,50 @@ search_info = {
     , "searchHopeSrvc2": ""
     , "searchSrvcTarget": ""
     , "searchRequstSe": "on"
-    , "searchProgrmBgnde": sdate
+    , "searchProgrmBgnde": sdate  #"2020-06-15"
     , "searchProgrmEndde": edate
     , "yngbgsPosblAt": "Y"        #청소년
     , "adultPosblAt": "Y"        #성인
-    , "searchSrvcStts": "0"
+    , "searchSrvcStts": "0"     #0: 모집중 ,3:전체
     , "searchKeyword": ""
 }
 
 
+#기본 html 만들기
 def MakeBasicHtml():
-    strHtml = '''<html><head>
-                <link rel="shortcut icon" href="https://www.1365.go.kr/web/vols/images/ico/favicon.ico" type="images/x-ico" />
-                <link rel="stylesheet" type="text/css" href="https://www.1365.go.kr/web/vols/css/base.css?v=20180426">
-                <link rel="stylesheet" type="text/css" href="https://www.1365.go.kr/web/vols/css/common.css?v=20180509">
-                <link rel="stylesheet" type="text/css" href="https://www.1365.go.kr/web/vols/css/slick.css">
-                <script type="text/javascript" src="https://www.1365.go.kr/web/vols/js/jquery-1.12.4.min.js"></script>
-                <script type="text/javascript" src="https://www.1365.go.kr/web/vols/js/common.js"></script>
-                <script type="text/javascript" src="https://www.1365.go.kr/web/vols/js/vols_common.js"></script>
-                <script type="text/javascript" src="https://www.1365.go.kr/web/vols/js/frontUi.js"></script>	
-                <script type="text/javascript" src="https://www.1365.go.kr/web/vols/js/modules/calendar.js"></script>
-                <script type="text/javascript" src="https://www.1365.go.kr/web/cmmn/js/miya_validator.js"></script>
-                <script type="text/javascript" src="https://www.1365.go.kr/js/prtl/netfunnel.js"></script>
-            </head>
-	
-            <body> 
-                <script type = "text/javascript" >
-                    function show(No){
-                        var no = No;
-                        $('#firstSearch').val('N');
-                        //접근성관련 수정
-                        //$('#progrmRegistNo').val(no);
-                        $('#progrmRegistNo_'+no).val(no);
-                        $('#cPage').val('1');
-                        var flag = $('#flag').val();
+    strHtml = '''
+    <html>
+    <head>
+        
+        <link rel="shortcut icon" href="https://www.1365.go.kr/web/vols/images/ico/favicon.ico" type="images/x-ico" />
+        <link rel="stylesheet" type="text/css" href="https://www.1365.go.kr/web/vols/css/base.css?v=20180426">
+        <link rel="stylesheet" type="text/css" href="https://www.1365.go.kr/web/vols/css/common.css?v=20180509">
+        <link rel="stylesheet" type="text/css" href="https://www.1365.go.kr/web/vols/css/slick.css">
+        <script type="text/javascript" src="https://www.1365.go.kr/web/vols/js/jquery-1.12.4.min.js"></script>
+        <script type="text/javascript" src="https://www.1365.go.kr/web/vols/js/common.js"></script>
+        <script type="text/javascript" src="https://www.1365.go.kr/web/vols/js/vols_common.js"></script>
+        <script type="text/javascript" src="https://www.1365.go.kr/web/vols/js/frontUi.js"></script>	
+        <script type="text/javascript" src="https://www.1365.go.kr/web/vols/js/modules/calendar.js"></script>
+        <script type="text/javascript" src="https://www.1365.go.kr/web/cmmn/js/miya_validator.js"></script>
+        <script type="text/javascript" src="https://www.1365.go.kr/js/prtl/netfunnel.js"></script>
+        
+	</head>
+    
+    <body> 
 
-                        if(flag == 'A01'){ 
-                            returnUrl="https://www.1365.go.kr/vols/P9210/partcptn/timeCptn.do;jsessionid=a2cgAbx7sRQL9XmXnQ71tpVJ.node10?titleNm=상세보기&type=show&progrmRegistNo="+no+"";
-                        }
-                        else if(flag == 'A02'){                            returnUrl="https://www.1365.go.kr/vols/P9220/partcptn/partCptn.do;jsessionid=a2cgAbx7sRQL9XmXnQ71tpVJ.node10?titleNm=상세보기&type=show&progrmRegistNo="+no+"";
-                        }
-                        else{                            returnUrl="https://www.1365.go.kr/vols/P9230/partcptn/grpCptn.do;jsessionid=a2cgAbx7sRQL9XmXnQ71tpVJ.node10?titleNm=상세보기&type=show&progrmRegistNo="+no+"";
-                        }
-                        document.frm.action = returnUrl;
-                        document.frm.target = "_top";
-                        //document.frm.target = "_blank";
-                        document.frm.submit();
-                    }
-                </script>
-
-                <form method="post" name="frm" id="frm" action="">
-                <input type="hidden" id="jsonUrl" name="jsonUrl" value="''' +url_Main+ '''" />
-                <input type="hidden" id="cPage"    name="cPage"  value="1" />
-                <input type="hidden" id="searchFlag" name="searchFlag" value="search" />
-                <input type="hidden" id="requstSe" name="requstSe" value="" />
-                <input type="hidden" id="firstSearch" name="firstSearch" value="" />
-                <input type="hidden" id="flag"     name="flag"   value="A01"/>
+        <form method="post" name="frm" id="frm" action="">
+        <input type="hidden" id="jsonUrl" name="jsonUrl" value="''' +url_Main+ '''" />
+        <input type="hidden" id="cPage"    name="cPage"  value="1" />
+        <input type="hidden" id="searchFlag" name="searchFlag" value="search" />
+        <input type="hidden" id="requstSe" name="requstSe" value="" />
+        <input type="hidden" id="firstSearch" name="firstSearch" value="" />
+        <input type="hidden" id="flag"     name="flag"   value="A01"/>
     '''
 
     return strHtml
 
 
+#1365페이지에서 리스트에 대한 html과 페이지 갯수 갖고오기
 def GetData(url, info):
     rtnVal = ""
 
@@ -105,7 +88,6 @@ def GetData(url, info):
         global cntPage
         cntPage = int(countInfo.split("]")[0].split("/")[1])
 
-    
     return str(tag_list)
 
 
@@ -126,8 +108,5 @@ def main(request):
             result += GetData(url_Main, search_info)
 
     result+="</body> </html>"
-    
-    
     return HttpResponse(result)
-    #################################################
     
