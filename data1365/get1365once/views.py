@@ -1,12 +1,18 @@
+
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
 from datetime import datetime, timedelta
-import webbrowser
+
+from django.shortcuts import render
+from django.http import HttpResponse
 
 sdate = datetime.now()
 edate = datetime.now() + timedelta(days=31)
+cntPage = 1
+url_Main = "https://www.1365.go.kr/vols/P9210/partcptn/timeCptn.do"
 
+
+#post로 자료요청할 때 필요한 정보
 search_info = {
     "cPage": 1
     , "searchFlag": "search"
@@ -21,17 +27,16 @@ search_info = {
     , "searchRequstSe": "on"
     , "searchProgrmBgnde": sdate
     , "searchProgrmEndde": edate
-    , "yngbgsPosblAt": "Y"
-    , "adultPosblAt": "Y"
+    , "yngbgsPosblAt": "Y"        #청소년
+    , "adultPosblAt": "Y"        #성인
     , "searchSrvcStts": "0"
     , "searchKeyword": ""
 }
 
-url_Main = "https://www.1365.go.kr/vols/P9210/partcptn/timeCptn.do"
 
-
-def MakeBody():
-    strBody = '''	<link rel="shortcut icon" href="https://www.1365.go.kr/web/vols/images/ico/favicon.ico" type="images/x-ico" />
+def MakeBasicHtml():
+    strHtml = '''<html><head>
+                <link rel="shortcut icon" href="https://www.1365.go.kr/web/vols/images/ico/favicon.ico" type="images/x-ico" />
                 <link rel="stylesheet" type="text/css" href="https://www.1365.go.kr/web/vols/css/base.css?v=20180426">
                 <link rel="stylesheet" type="text/css" href="https://www.1365.go.kr/web/vols/css/common.css?v=20180509">
                 <link rel="stylesheet" type="text/css" href="https://www.1365.go.kr/web/vols/css/slick.css">
@@ -42,9 +47,9 @@ def MakeBody():
                 <script type="text/javascript" src="https://www.1365.go.kr/web/vols/js/modules/calendar.js"></script>
                 <script type="text/javascript" src="https://www.1365.go.kr/web/cmmn/js/miya_validator.js"></script>
                 <script type="text/javascript" src="https://www.1365.go.kr/js/prtl/netfunnel.js"></script>
-	'''
-
-    strBody += ''' <body> 
+            </head>
+	
+            <body> 
                 <script type = "text/javascript" >
                     function show(No){
                         var no = No;
@@ -57,10 +62,10 @@ def MakeBody():
 
                         if(flag == 'A01'){ 
                             returnUrl="https://www.1365.go.kr/vols/P9210/partcptn/timeCptn.do;jsessionid=a2cgAbx7sRQL9XmXnQ71tpVJ.node10?titleNm=상세보기&type=show&progrmRegistNo="+no+"";
-                        }else if(flag == 'A02'){
-                            returnUrl="https://www.1365.go.kr/vols/P9220/partcptn/partCptn.do;jsessionid=a2cgAbx7sRQL9XmXnQ71tpVJ.node10?titleNm=상세보기&type=show&progrmRegistNo="+no+"";
-                        }else{
-                            returnUrl="https://www.1365.go.kr/vols/P9230/partcptn/grpCptn.do;jsessionid=a2cgAbx7sRQL9XmXnQ71tpVJ.node10?titleNm=상세보기&type=show&progrmRegistNo="+no+"";
+                        }
+                        else if(flag == 'A02'){                            returnUrl="https://www.1365.go.kr/vols/P9220/partcptn/partCptn.do;jsessionid=a2cgAbx7sRQL9XmXnQ71tpVJ.node10?titleNm=상세보기&type=show&progrmRegistNo="+no+"";
+                        }
+                        else{                            returnUrl="https://www.1365.go.kr/vols/P9230/partcptn/grpCptn.do;jsessionid=a2cgAbx7sRQL9XmXnQ71tpVJ.node10?titleNm=상세보기&type=show&progrmRegistNo="+no+"";
                         }
                         document.frm.action = returnUrl;
                         document.frm.target = "_top";
@@ -70,7 +75,7 @@ def MakeBody():
                 </script>
 
                 <form method="post" name="frm" id="frm" action="">
-                <input type="hidden" id="jsonUrl" name="jsonUrl" value="https://www.1365.go.kr/vols/P9210/mber/volsMberJson.do" />
+                <input type="hidden" id="jsonUrl" name="jsonUrl" value="''' +url_Main+ '''" />
                 <input type="hidden" id="cPage"    name="cPage"  value="1" />
                 <input type="hidden" id="searchFlag" name="searchFlag" value="search" />
                 <input type="hidden" id="requstSe" name="requstSe" value="" />
@@ -78,7 +83,7 @@ def MakeBody():
                 <input type="hidden" id="flag"     name="flag"   value="A01"/>
     '''
 
-    return strBody
+    return strHtml
 
 
 def GetData(url, info):
@@ -86,12 +91,9 @@ def GetData(url, info):
 
     session = requests.session()
     res = session.post(url, data=info)
-
     res.raise_for_status()
 
-    soup = BeautifulSoup(res.text, "html.parser")
-
-    
+    soup = BeautifulSoup(res.text, "html.parser")    
     tag_list = soup.find('div',{'class':'board_list board_list2 non_sub'})
     
 
@@ -106,34 +108,26 @@ def GetData(url, info):
     
     return str(tag_list)
 
-#############################################################################################################
-#############################################################################################################
 
-result = ""
-cntPage = 1
 
-#1365Search.html 파일 만들기
-f = open("1365Search.html", "w")
-f.write("<html>")
-f.write(MakeBody())
-f.close()
+def main(request):
+    global cntPage
+    result = ""
+    #기본(head정보, link html)
+    result += MakeBasicHtml()
+    
+    ## 첫페이지
+    result += GetData(url_Main, search_info)
 
-f = open("1365Search.html", "a")
+    ## 페이지 수 만큼 자료 갖고 오기
+    if cntPage >= 2:
+        for i in range(2, cntPage + 1):
+            search_info["cPage"] = i
+            result += GetData(url_Main, search_info)
 
-## 첫페이지
-result += GetData(url_Main, search_info)
-
-## 페이지 수 만큼 자료 갖고 오기
-if cntPage >= 2:
-    for i in range(2, cntPage + 1):
-        search_info["cPage"] = i
-        result += GetData(url_Main, search_info)
-
-f.write(result)
-f.write("</body> </html>")
-f.close()
-#################################################
-
-# 웹브라우저 열기
-url = "1365Search.html"
-webbrowser.open(url)
+    result+="</body> </html>"
+    
+    
+    return HttpResponse(result)
+    #################################################
+    
